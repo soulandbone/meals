@@ -9,6 +9,7 @@ class MealsScreen extends StatelessWidget {
     this.title,
     required this.filteredMeals,
     required this.onFavoriteMeal,
+
     super.key,
   });
 

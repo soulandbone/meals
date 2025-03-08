@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'package:meals/models/meal.dart';
 
 class MealDetailsScreen extends StatefulWidget {
   const MealDetailsScreen({
     required this.meal,
     required this.onFavoriteMeal,
+
     super.key,
   });
 
@@ -18,7 +20,18 @@ class MealDetailsScreen extends StatefulWidget {
 }
 
 class _MealDetailsScreenState extends State<MealDetailsScreen> {
+  @override
+  // void initState() {
+  //   var isFavorite = widget.isMealOnTheList;
+  //   super.initState();
   var isFavorite = false;
+
+  updateFavorite() {
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+    widget.onFavoriteMeal(widget.meal);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +41,12 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              widget.onFavoriteMeal(widget.meal);
+              updateFavorite();
             },
-            icon: Icon(Icons.star),
+            icon:
+                isFavorite
+                    ? Icon(Icons.star)
+                    : Icon(Icons.star_border_outlined),
           ),
         ],
       ),

@@ -11,14 +11,23 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
-  final List<Meal> favoriteMeals = [];
+  final List<Meal> _favoriteMeals = [];
 
-  void toggleFavorite(Meal meal) {
+  void _showInfoMessage(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _toggleFavorite(Meal meal) {
     setState(() {
-      if (favoriteMeals.contains(meal)) {
-        favoriteMeals.remove(meal);
+      if (_favoriteMeals.contains(meal)) {
+        _favoriteMeals.remove(meal);
+        _showInfoMessage('Meal is no longer a favorite');
       } else {
-        favoriteMeals.add(meal);
+        _favoriteMeals.add(meal);
+        _showInfoMessage('Meal is now a favorite');
       }
     });
   }
@@ -33,13 +42,13 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget activePage = CategoriesScreen(toggleFavorite);
+    Widget activePage = CategoriesScreen(_toggleFavorite);
     var activePageTitle = 'Categories';
 
     if (_selectedPageIndex == 1) {
       activePage = MealsScreen(
-        onFavoriteMeal: toggleFavorite,
-        filteredMeals: favoriteMeals,
+        onFavoriteMeal: _toggleFavorite,
+        filteredMeals: _favoriteMeals,
       );
       activePageTitle = 'Your Favorites';
     }
