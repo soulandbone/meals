@@ -1,52 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:meals/models/meal.dart';
+import 'package:meals/providers/favorites_provider.dart';
 
-class MealDetailsScreen extends StatefulWidget {
-  const MealDetailsScreen({
-    required this.meal,
-    required this.onFavoriteMeal,
-
-    super.key,
-  });
+class MealDetailsScreen extends ConsumerWidget {
+  const MealDetailsScreen({required this.meal, super.key});
 
   final Meal meal;
-  final void Function(Meal meal) onFavoriteMeal;
 
   @override
-  State<MealDetailsScreen> createState() {
-    return _MealDetailsScreenState();
-  }
-}
-
-class _MealDetailsScreenState extends State<MealDetailsScreen> {
-  @override
-  // void initState() {
-  //   var isFavorite = widget.isMealOnTheList;
-  //   super.initState();
-  var isFavorite = false;
-
-  updateFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
-    widget.onFavoriteMeal(widget.meal);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteMeals = ref.watch(favoriteMealsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.meal.title),
+        title: Text(meal.title),
         actions: [
           IconButton(
             onPressed: () {
-              updateFavorite();
+              final wasAdded = ref
+                  .read(favoriteMealsProvider.notifier)
+                  .toggleMealFavoritesStatus(meal);
+              var text = 'New Recipe added to your favorites';
+              if (!wasAdded) {
+                text = 'New recipe deleted from your favorites';
+              }
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(text, style: TextStyle(color: Colors.black)),
+                ),
+              );
             },
             icon:
-                isFavorite
+                favoriteMeals.contains(meal)
                     ? Icon(Icons.star)
-                    : Icon(Icons.star_border_outlined),
+                    : Icon(Icons.star_border),
           ),
         ],
       ),
@@ -54,7 +43,7 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
         child: Column(
           children: [
             Image.network(
-              widget.meal.imageUrl,
+              meal.imageUrl,
               height: 300,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -68,7 +57,7 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            for (final ingredient in widget.meal.ingredients)
+            for (final ingredient in meal.ingredients)
               Text(
                 ingredient,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -76,7 +65,7 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                 ),
               ),
             SizedBox(height: 14),
-            for (final instruction in widget.meal.steps)
+            for (final instruction in meal.steps)
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
